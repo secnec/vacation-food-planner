@@ -11,11 +11,11 @@ Groups going on vacation can use this application to plan their menu. The applic
         - Each recipe has ingredients linked to it
     - Participants, who each have a factor of how much they eat (e.g. a child might have factor of 0,5)
 - User can choose for each created trip and recipe if it is private or public  
--- Ingredient is always public
--- The public/private-status of a participant is inherited from the status of the trip it is linked to
+    - Ingredient is always public
+    - The public/private-status of a participant is inherited from the status of the trip it is linked to
 - User can see public entities created by other users
 - User can generate a shopping list for their trip
--- The shopping list lists out the quantities required of each ingredient for the recipes linked to the trip
+    - The shopping list lists out the quantities required of each ingredient for the recipes linked to the trip
 
 ## Database structure
 The database will have the following tables
