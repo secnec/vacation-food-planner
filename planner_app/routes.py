@@ -36,7 +36,7 @@ def recipes():
     for r in recipes:
         sql = "SELECT ingredient.name, recipe_ingredient.amount FROM recipe_ingredient INNER JOIN ingredient ON recipe_ingredient.ingredient_id=ingredient.id WHERE recipe_ingredient.recipe_id=:id"
         ingredients = db.session.execute(sql, {"id":r.id}).fetchall()
-        results.siteend({
+        results.append({
             'name': r.name,
             'instructions': r.instructions,
             'ingredients': ingredients
