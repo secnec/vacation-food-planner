@@ -28,3 +28,19 @@ The database will have the following tables
 - trip_participant (one-many)
 - participant
 
+## Current status as of 7th August 2022
+The app is deployed to Heroku, and can be tested there:
+https://vacation-food-planner.herokuapp.com/
+
+Implemented functionality
+- User registration
+- User login and logout
+- New recipe and ingredient creation
+- Viewing of created recipes
+
+Functionality that is yet to be implemented:
+- Trips and participants
+- Shopping lists
+- Non-public recipes
+- Ingredient measurements
+- Ingredient amounts in recipes
