@@ -8,6 +8,12 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = getenv("SECRET_KEY")
+
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = getenv["DATABASE_URL"].replace("postgres://", "postgresql://")
+
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 
