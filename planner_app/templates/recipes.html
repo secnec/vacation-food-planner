@@ -14,8 +14,9 @@ Recipes
 {% for recipe in recipes %}
     <hr>
     <h3>{{ recipe.name }}</h3>
+    <p><b>Preparation instructions:</b></p>
     <p> {{ recipe.instructions }} </p>
-    <p><b>ingredients:</b></p>
+    <p><b>Ingredients:</b></p>
     <ul>
         {% for ingredient in recipe.ingredients %}
         <li>{{ingredient[0]}}</li>
