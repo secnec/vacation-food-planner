@@ -1,10 +1,15 @@
-from app import app, login_manager
 from planner_app.db import db
+from planner_app.loginmanager import login_manager
 from planner_app.models import Ingredient, Recipe_ingredient, Recipe, User
 from planner_app.forms import RecipeForm, RegistrationForm
-from flask import redirect, render_template, request
+from flask import Blueprint, redirect, render_template, request
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_user, login_required, logout_user
+
+
+site = Blueprint("site", __name__, template_folder="templates")
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -14,16 +19,16 @@ def load_user(user_id):
 def unauthorized():
     return redirect("/login")
 
-@app.route("/")
+@site.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/trips")
+@site.route("/trips")
 @login_required
 def trips():
     return render_template("trips.html")
 
-@app.route("/recipes")
+@site.route("/recipes")
 @login_required
 def recipes():
     recipes = db.session.query(Recipe.id, Recipe.name, Recipe.instructions).filter_by(is_secret=False).all()
@@ -31,19 +36,19 @@ def recipes():
     for r in recipes:
         sql = "SELECT ingredient.name, recipe_ingredient.amount FROM recipe_ingredient INNER JOIN ingredient ON recipe_ingredient.ingredient_id=ingredient.id WHERE recipe_ingredient.recipe_id=:id"
         ingredients = db.session.execute(sql, {"id":r.id}).fetchall()
-        results.append({
+        results.siteend({
             'name': r.name,
             'instructions': r.instructions,
             'ingredients': ingredients
         })
     return render_template("recipes.html", recipes=results)
 
-@app.route("/new_trip")
+@site.route("/new_trip")
 @login_required
 def new_trip():
     return render_template("new_trip.html")
 
-@app.route("/new_recipe", methods=["GET", "POST"])
+@site.route("/new_recipe", methods=["GET", "POST"])
 @login_required
 def new_recipe():
     recipeform = RecipeForm()
@@ -85,7 +90,7 @@ def new_recipe():
 
     return render_template("new_recipe.html", form=recipeform)
 
-@app.route("/register", methods=["GET", "POST"])
+@site.route("/register", methods=["GET", "POST"])
 def register():
     alert = None
     form = RegistrationForm()
@@ -113,7 +118,7 @@ def register():
     return render_template("register.html", form=form)
 
 
-@app.route("/login", methods=["GET", "POST"])
+@site.route("/login", methods=["GET", "POST"])
 def login():
     alert = None
 
@@ -131,7 +136,7 @@ def login():
 
     return render_template("login.html", alert=alert)
 
-@app.route("/logout")
+@site.route("/logout")
 @login_required
 def logout():
     logout_user()

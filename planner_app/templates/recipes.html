@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Recipes
+{% endblock %}
+
+{% block content %}
+
+<h2>Public recipes</h2>
+
+{% if alert %}
+<p class=error><strong>Error:</strong> {{ alert }} </p>
+{% endif %}
+{% for recipe in recipes %}
+    <hr>
+    <h3>{{ recipe.name }}</h3>
+    <p> {{ recipe.instructions }} </p>
+    <p><b>ingredients:</b></p>
+    <ul>
+        {% for ingredient in recipe.ingredients %}
+        <li>{{ingredient[0]}}</li>
+        {% endfor %}
+    </ul>
+{% endfor %}
+<hr>
+
+{% endblock %}
