@@ -1,19 +1,17 @@
-from planner_app.db import db
 from planner_app.loginmanager import login_manager
-from planner_app.models import Ingredient, Recipe_ingredient, Recipe, User
-from planner_app.forms import RecipeForm, RegistrationForm
+from planner_app.forms import RegistrationForm
 from flask import Blueprint, redirect, render_template, request
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_user, login_required, logout_user
-
+from planner_app.dboperations import insert_recipe, get_user_object, get_recipes
+from planner_app.validators import validate_recipe
 
 site = Blueprint("site", __name__, template_folder="templates")
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(user_id)
+    return get_user_object(user_id)
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -31,16 +29,8 @@ def trips():
 @site.route("/recipes")
 @login_required
 def recipes():
-    recipes = db.session.query(Recipe.id, Recipe.name, Recipe.instructions).filter_by(is_secret=False).all()
-    results = []
-    for r in recipes:
-        sql = "SELECT ingredient.name, recipe_ingredient.amount FROM recipe_ingredient INNER JOIN ingredient ON recipe_ingredient.ingredient_id=ingredient.id WHERE recipe_ingredient.recipe_id=:id"
-        ingredients = db.session.execute(sql, {"id":r.id}).fetchall()
-        results.append({
-            'name': r.name,
-            'instructions': r.instructions,
-            'ingredients': ingredients
-        })
+    results = get_recipes()
+    print(results)
     return render_template("recipes.html", recipes=results)
 
 @site.route("/new_trip")
@@ -51,44 +41,16 @@ def new_trip():
 @site.route("/new_recipe", methods=["GET", "POST"])
 @login_required
 def new_recipe():
-    recipeform = RecipeForm()
 
-    if request.method == "POST" and recipeform.validate:
-        #name = request.form.get("name")
-        #instructions = request.form.get("instructions")
-        new_recipe = Recipe(
-            name=recipeform.name.data,
-            instructions=recipeform.instructions.data,
-            is_secret = recipeform.is_secret.data
-        )
-        db.session.add(new_recipe)
-        db.session.flush()
-        db.session.refresh(new_recipe)
+    if request.method == "POST":
+        result = validate_recipe(request)
+        if result != True:
+            return render_template("new_recipe.html", alert=result)  
+        else:
+            insert_recipe(request)
+            return redirect("/recipes")
 
-        for i in recipeform.ingredients.entries:
-            new_ingredient = Ingredient(
-                name=i.data,
-                measure = "n/a"
-            )
-            db.session.add(new_ingredient)
-            db.session.flush()
-            db.session.refresh(new_ingredient)
-
-            new_link = Recipe_ingredient(
-                recipe_id = new_recipe.id,
-                ingredient_id = new_ingredient.id,
-                amount = "1"
-            )
-            db.session.add(new_link)
-            db.session.flush()
-
-        db.session.commit()
-        #sql = "INSERT INTO recipe (name, instructions, is_secret) VALUES (:name, :instructions, :is_secret)"
-        #db.session.execute(sql, {"name": name, "instructions": instructions, "is_secret": False})
-        #db.session.commit()
-        return redirect("/recipes")
-
-    return render_template("new_recipe.html", form=recipeform)
+    return render_template("new_recipe.html")
 
 @site.route("/register", methods=["GET", "POST"])
 def register():
@@ -125,7 +87,7 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        user = User.query.filter_by(username=username).first()
+        user, password = get_user(username)
         if user is None:
             alert = "Invalid username or password"
         elif check_password_hash(user.password, password):

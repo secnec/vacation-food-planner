@@ -19,7 +19,7 @@ Recipes
     <p><b>Ingredients:</b></p>
     <ul>
         {% for ingredient in recipe.ingredients %}
-        <li>{{ingredient[0]}}</li>
+        <li>{{ingredient[2]}} {{ingredient[1]}} {{ingredient[0]}}</li>
         {% endfor %}
     </ul>
 {% endfor %}
