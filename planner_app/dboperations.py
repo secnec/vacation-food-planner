@@ -1,6 +1,7 @@
 from planner_app.db import db
 from sqlalchemy.orm.exc import NoResultFound
 from planner_app.user import User
+from flask_login import current_user
 
 def get_user_by_username(username):
     try:
@@ -27,12 +28,12 @@ def insert_user(username, password):
     db.session.commit()
 
 def insert_recipe(request):
-    print(request.values)
-    recipesql = "INSERT INTO recipe (name, instructions, is_secret) VALUES (:name, :instructions, :is_secret) RETURNING id"
+    recipesql = "INSERT INTO recipe (name, instructions, is_secret, owner_id) VALUES (:name, :instructions, :is_secret, :owner_id) RETURNING id"
     recipe_id = db.session.execute (recipesql, {
         "name":request.values.get("name").strip(), 
         "instructions":request.values.get("instructions"),
-        "is_secret":request.values.get("is_secret")
+        "is_secret":request.values.get("is_secret"),
+        "owner_id": current_user.id
         }).first()[0]
     db.session.flush()
     
@@ -61,10 +62,12 @@ def insert_recipe(request):
     db.session.commit()
 
 def get_recipes():
-    recipes_sql = "SELECT id, name, instructions FROM recipe"
+    recipes_sql = "SELECT id, name, instructions, is_secret, owner_id FROM recipe"
     recipes = db.session.execute(recipes_sql).fetchall()
     results = []
     for r in recipes:
+        if r[3] == True and r[4] != current_user.id:
+            continue
         sql = "SELECT ingredient.name, ingredient.measure, recipe_ingredient.amount FROM recipe_ingredient INNER JOIN ingredient ON recipe_ingredient.ingredient_id=ingredient.id WHERE recipe_ingredient.recipe_id=:id"
         ingredients = db.session.execute(sql, {"id":r[0]}).fetchall()
         results.append({
@@ -76,10 +79,11 @@ def get_recipes():
     return results
 
 def insert_trip(request):
-    tripsql = "INSERT INTO trip (name, is_secret) VALUES (:name, :is_secret) RETURNING id"
+    tripsql = "INSERT INTO trip (name, is_secret, owner_id) VALUES (:name, :is_secret, :owner_id) RETURNING id"
     trip_id = db.session.execute (tripsql, {
         "name":request.values.get("name").strip(), 
-        "is_secret":request.values.get("is_secret")
+        "is_secret":request.values.get("is_secret"),
+        "owner_id": current_user.id
         }).first()[0]
     db.session.flush()
     
@@ -123,10 +127,12 @@ def insert_trip(request):
 
 
 def get_trips():
-    trips_sql = "SELECT id, name FROM trip"
+    trips_sql = "SELECT id, name, is_secret, owner_id FROM trip"
     trips = db.session.execute(trips_sql).fetchall()
     results = []
     for r in trips:
+        if r[2] == True and r[3] != current_user.id:
+            continue
         participant_sql = "SELECT participant.name, participant.factor FROM trip_participant INNER JOIN participant ON trip_participant.participant_id=participant.id WHERE trip_participant.trip_id=:id"
         participants = db.session.execute(participant_sql, {"id":r[0]}).fetchall()
         factor_sum = 0
@@ -220,8 +226,10 @@ def convert_to_ml_or_g(measure):
 
 def check_recipe_id(id):
     try:
-        sql = 'SELECT name FROM recipe WHERE id=:id'
+        sql = "SELECT name, is_secret, owner_id FROM recipe WHERE id=:id"
         result = db.session.execute(sql, {"id":id}).one()
+        if result[1] == True and result[2] != current_user.id:
+            return None
         return result
     except NoResultFound:
         return None

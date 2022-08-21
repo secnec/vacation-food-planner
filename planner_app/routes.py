@@ -2,10 +2,9 @@ from planner_app.loginmanager import login_manager
 from planner_app.forms import RegistrationForm
 from flask import Blueprint, redirect, render_template, request
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 import planner_app.dboperations as dbo
 from planner_app.validators import validate_recipe, validate_trip
-from planner_app.user import User
 
 site = Blueprint("site", __name__, template_folder="templates")
 
