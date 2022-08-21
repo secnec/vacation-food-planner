@@ -6,7 +6,7 @@ Recipes
 
 {% block content %}
 
-<h2>Public recipes</h2>
+<h2>Recipes</h2>
 
 {% if alert %}
 <p class=error><strong>Error:</strong> {{ alert }} </p>
@@ -14,6 +14,7 @@ Recipes
 {% for recipe in recipes %}
     <hr>
     <h3>{{ recipe.name }}</h3>
+    <p> id: {{ recipe.id }} </p>
     <p><b>Preparation instructions:</b></p>
     <p> {{ recipe.instructions }} </p>
     <p><b>Ingredients:</b></p>

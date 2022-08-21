@@ -6,6 +6,34 @@ Trips
 
 {% block content %}
 
-<h2>Public trips</h2>
+<h2>Trips</h2>
+
+{% if alert %}
+<p class=error><strong>Error:</strong> {{ alert }} </p>
+{% endif %}
+{% for trip in trips %}
+    <hr>
+    <h3>{{ trip.name }}</h3>
+    <p><b>Participants:</b></p>
+    <ul>
+        {% for participant in trip.participants %}
+        <li>{{participant[0]}} - eating factor {{participant[1]}}</li>
+        {% endfor %}
+    </ul><br>
+    <p><b>Recipes:</b></p>
+    <ul>
+        {% for recipe in trip.recipes %}
+        <li>{{recipe[0]}}</li>
+        {% endfor %}
+    </ul><br>
+    <p><b>Shopping list:</b></p>
+    <ul>
+        {% for item in trip.shopping_list %}
+        <li>{{item}}
+        </li>
+        {% endfor %}
+    </ul>
+{% endfor %}
+<hr>
 
 {% endblock %}
