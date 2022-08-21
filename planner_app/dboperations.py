@@ -27,11 +27,12 @@ def insert_user(username, password):
     db.session.commit()
 
 def insert_recipe(request):
+    print(request.values)
     recipesql = "INSERT INTO recipe (name, instructions, is_secret) VALUES (:name, :instructions, :is_secret) RETURNING id"
     recipe_id = db.session.execute (recipesql, {
         "name":request.values.get("name").strip(), 
         "instructions":request.values.get("instructions"),
-        "is_secret":True
+        "is_secret":request.values.get("is_secret")
         }).first()[0]
     db.session.flush()
     
@@ -78,7 +79,7 @@ def insert_trip(request):
     tripsql = "INSERT INTO trip (name, is_secret) VALUES (:name, :is_secret) RETURNING id"
     trip_id = db.session.execute (tripsql, {
         "name":request.values.get("name").strip(), 
-        "is_secret":True
+        "is_secret":request.values.get("is_secret")
         }).first()[0]
     db.session.flush()
     
@@ -179,41 +180,42 @@ def generate_shopping_list(ingredients, factor_sum):
     return shopping_list
 
 
-def convert_to_ml_or_g(m):
-    m = m.lower()
-    f = 0
-    t = ''
-    if m == 'l':
-        f=1000
-        t = 'ml'
-    elif m == 'dl':
-        f=100
-        t = 'ml'
-    elif m == 'cl':
-        f=10
-        t = 'ml'
-    elif m in ['tbsp','tbs', 'tb', 'rkl']:
-        f=15
-        t = 'ml'
-    elif m in ['tsp', 'tl']:
-        f=5
-        t = 'ml'
-    elif m == 'cup':
-        f=240
-        t = 'ml'
-    elif m == 'ml':
-        f=1
-        t = 'ml'
-    elif m in ['kg', 'kilo']:
-        f=1000
-        t = 'g'
-    elif m in ['g', 'gram']:
-        f=1
-        t = 'g'
-    if f == 0:
+
+def convert_to_ml_or_g(measure):
+    measure = measure.lower()
+    factor = 0
+    new_measure = ''
+    if measure == 'l':
+        factor =1000
+        new_measure = 'ml'
+    elif measure == 'dl':
+        factor =100
+        new_measure = 'ml'
+    elif measure == 'cl':
+        factor =10
+        new_measure = 'ml'
+    elif measure in ['tbsp','tbs', 'tb', 'rkl']:
+        factor =15
+        new_measure = 'ml'
+    elif measure in ['tsp', 'ts', 'tl']:
+        factor =5
+        new_measure = 'ml'
+    elif measure == 'cup':
+        factor =240
+        new_measure = 'ml'
+    elif measure == 'ml':
+        factor =1
+        new_measure = 'ml'
+    elif measure in ['kg', 'kilo']:
+        factor =1000
+        new_measure = 'g'
+    elif measure in ['g', 'gram']:
+        factor =1
+        new_measure = 'g'
+    if factor == 0:
         return False
     else:
-        return f,t
+        return factor, new_measure
 
 
 def check_recipe_id(id):
