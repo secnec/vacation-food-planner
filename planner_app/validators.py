@@ -29,6 +29,8 @@ def validate_trip(request):
             if check_number_validity(value) is False:
                 return "Participant factor has to be a positive number"
         elif "recipeids" in key:
+            if value.isnumeric() == False:
+                return "Recipe id must be an integer"
             if  check_recipe_id(value) == None:
                 return f"No recipe found with id {value}"
     return True
