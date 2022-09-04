@@ -183,9 +183,9 @@ def generate_shopping_list(ingredients, factor_sum):
             shopping_dict[name] = [(amount, measure)]
         else:
             measure_exists = False
-            for a in amount_list:
-                if a[1] == measure:
-                    amount_list[i] = (a[0]+amount, measure)
+            for a in range(len(amount_list)):
+                if amount_list[a][1] == measure:
+                    amount_list[a] = (amount_list[a][0]+amount, measure)
                     measure_exists = True
                     break
             if not measure_exists:
