@@ -39,11 +39,21 @@ def new_trip():
     if request.method == "POST":
         result = validate_trip(request)
         if result != True:
-            return render_template("new_trip.html", alert=result)  
+            p=1
+            while True:
+                if f"participantnames-{p}" not in request.values.keys():
+                    break
+                p += 1
+            r=1
+            while True:
+                if f"recipeids-{r}" not in request.values.keys():
+                    break
+                r += 1
+            return render_template("new_trip.html", alert=result, part_number = p, rec_number = r)  
         else:
             dbo.insert_trip(request)
             return redirect("/trips")
-    return render_template("new_trip.html")
+    return render_template("new_trip.html", part_number = 1, rec_number = 1)
 
 @site.route("/new_recipe", methods=["GET", "POST"])
 @login_required
@@ -51,11 +61,16 @@ def new_recipe():
     if request.method == "POST":
         result = validate_recipe(request)
         if result != True:
-            return render_template("new_recipe.html", alert=result)  
+            i=1
+            while True:
+                if f"ingredientnames-{i}" not in request.values.keys():
+                    break
+                i += 1
+            return render_template("new_recipe.html", alert=result, ing_number = i)  
         else:
             dbo.insert_recipe(request)
             return redirect("/recipes")
-    return render_template("new_recipe.html")
+    return render_template("new_recipe.html", ing_number = 1)
 
 @site.route("/register", methods=["GET", "POST"])
 def register():

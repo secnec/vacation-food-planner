@@ -5,6 +5,8 @@ def validate_recipe(request):
     for key, value in request.values.items():
         if key == "name" and value == "":
             return "Recipe name cannot be empty"
+        elif key == "portions" and value == None or value == "":
+            return "Portions cannot be empty"
         elif "ingredientnames" in key and value == "":
             return "Ingredient name cannot be empty"
         elif "ingredientamounts" in key:

@@ -13,27 +13,33 @@ Add new trip
 
 <form method="POST" action="/new_trip">
     <label for="name">Trip name:</label><br>
-    <input type="text" id="name" name="name"><br><br>
+    <input type="text" id="name" name="name" value="{{ request.form['name'] }}">><br><br>
     <label for="participants">Participants:</label><br>
     <table id="participant_table">
         <tr>
             <th>Name</th>
             <th>factor</th>
-          </tr>
-          <tr>
-            <td><input type="text" id="ing_name" name="participantnames-0"></td>
-            <td><input type="text" id="factor" name="participantfactors-0"></td>
-          </tr>
+        </tr>
+        {% for i in range(0, part_number) %}
+            {% set f_names = 'participantnames-'+i|string %}
+            {% set f_factors = 'participantfactors-'+i|string %}
+            <tr>
+                <td><input type="text" name="participantnames-{{i}}" value="{{ request.form[f_names] }}"></td>
+                <td><input type="text" name="participantfactors-{{i}}" value="{{ request.form[f_factors] }}"></td>
+            </tr>
+        {% endfor %}
     </table>
     <button id="add-participant-field" type="button">Add new participant</button><br><br>
     <label for="recipes">Recipes:</label><br>
     <table id="recipe_table">
         <tr>
             <th>Recipe id</th>
-          </tr>
-          <tr>
-            <td><input type="text" id="recipe_id" name="recipeids-0"></td>
-          </tr>
+        {% for i in range(0, rec_number) %}
+            {% set f_ids = 'recipeids-'+i|string %}
+            <tr>
+                <td><input type="text" name="recipeids-{{i}}" value="{{ request.form[f_ids] }}"></td>
+            </tr>
+        {% endfor %}
     </table>
     <button id="add-recipe-field" type="button">Add new recipe</button><br><br>
     <input type="checkbox" id="is_secret" name="is_secret" value="True">
@@ -56,8 +62,8 @@ Add new trip
             let newFactorFieldName = `participantfactors-${Math.max(...participantInputIds) + 1}`;
             allParticipantsFieldWrapper.insertAdjacentHTML('beforeend',`
             <tr>
-                <td><input type="text" id=${newNameFieldName} name=${newNameFieldName}></td>
-                <td><input type="text" id=${newFactorFieldName} name=${newFactorFieldName}></td>
+                <td><input type="text" name=${newNameFieldName}></td>
+                <td><input type="text" name=${newFactorFieldName}></td>
             </tr>
             `);  
         });

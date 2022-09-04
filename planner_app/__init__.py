@@ -7,6 +7,7 @@ from planner_app.db import db
 def create_app(database_uri=None, secret_key=None):
 
     app = Flask(__name__)
+    app.jinja_env.add_extension('jinja2.ext.loopcontrols')
     app.secret_key = getenv("SECRET_KEY")
 
     app.config["TEMPLATES_AUTO_RELOAD"] = True

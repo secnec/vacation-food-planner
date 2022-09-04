@@ -28,10 +28,12 @@ def insert_user(username, password):
     db.session.commit()
 
 def insert_recipe(request):
-    recipesql = "INSERT INTO recipe (name, instructions, is_secret, owner_id) VALUES (:name, :instructions, :is_secret, :owner_id) RETURNING id"
+    portions = request.values.get("portions")
+    recipesql = "INSERT INTO recipe (name, instructions, portions, is_secret, owner_id) VALUES (:name, :instructions, :portions, :is_secret, :owner_id) RETURNING id"
     recipe_id = db.session.execute (recipesql, {
         "name":request.values.get("name").strip(), 
         "instructions":request.values.get("instructions"),
+        "portions":portions,
         "is_secret":request.values.get("is_secret"),
         "owner_id": current_user.id
         }).first()[0]
@@ -42,9 +44,9 @@ def insert_recipe(request):
         if f"ingredientnames-{i}" not in request.values.keys():
             break
         name = request.values.get(f"ingredientnames-{i}").strip()
-        amount = request.values.get(f"ingredientamounts-{i}").replace(',','.').strip()
+        amount = request.values.get(f"ingredientamounts-{i}").strip()
         measure = request.values.get(f"ingredientmeasures-{i}").strip()
-
+        amount, measure = portion_amount(amount, portions, measure)
         ingredientsql = "INSERT INTO ingredient (name, measure) VALUES (:name, :measure) RETURNING id"
         ingredient_id = db.session.execute (ingredientsql, {
         "name":name, 
@@ -61,18 +63,35 @@ def insert_recipe(request):
         i += 1
     db.session.commit()
 
+def portion_amount(amount, portions, measure):
+    # Divides the amount into single-eater portions, and converts the measure to g/ml if possible.
+    # e.g. thhe amounts in a recipe for four eaters (4 portions) should be divided by four
+    try:
+        amount = float(amount.replace(',', '.'))
+        portions = float(portions.replace(',', '.'))
+    except ValueError:
+        print("Amount or portion cannot be converted to float. This should not happen.")
+        return amount, measure
+    factor = 1
+    if convert_to_ml_or_g(measure):
+        factor, measure = convert_to_ml_or_g(measure)
+    amount = (factor * amount) / portions
+    return amount, measure
+
+
 def get_recipes():
-    recipes_sql = "SELECT id, name, instructions, is_secret, owner_id FROM recipe"
+    recipes_sql = "SELECT id, name, instructions, portions, is_secret, owner_id FROM recipe"
     recipes = db.session.execute(recipes_sql).fetchall()
     results = []
     for r in recipes:
-        if r[3] == True and r[4] != current_user.id:
+        if r[4] == True and r[5] != current_user.id:
             continue
-        sql = "SELECT ingredient.name, ingredient.measure, recipe_ingredient.amount FROM recipe_ingredient INNER JOIN ingredient ON recipe_ingredient.ingredient_id=ingredient.id WHERE recipe_ingredient.recipe_id=:id"
-        ingredients = db.session.execute(sql, {"id":r[0]}).fetchall()
+        sql = "SELECT ingredient.name, ingredient.measure, (recipe_ingredient.amount * :portions) FROM recipe_ingredient INNER JOIN ingredient ON recipe_ingredient.ingredient_id=ingredient.id WHERE recipe_ingredient.recipe_id=:id"
+        ingredients = db.session.execute(sql, {"id":r[0], "portions":r[3]}).fetchall()
         results.append({
             'id': r[0],
             'name': r[1],
+            'portions': r[3],
             'instructions': r[2],
             'ingredients': ingredients
         })
@@ -138,7 +157,7 @@ def get_trips():
         factor_sum = 0
         for p in participants:
             factor_sum += p[1]
-        recipe_sql = "SELECT recipe.name FROM trip_recipe INNER JOIN recipe ON trip_recipe.recipe_id=recipe.id WHERE trip_recipe.trip_id=:id"
+        recipe_sql = "SELECT recipe.name, recipe.portions FROM trip_recipe INNER JOIN recipe ON trip_recipe.recipe_id=recipe.id WHERE trip_recipe.trip_id=:id"
         recipes = db.session.execute(recipe_sql, {"id":r[0]}).fetchall()
         ingredients_sql="SELECT ingredient.name, recipe_ingredient.amount, ingredient.measure FROM trip_recipe INNER JOIN recipe_ingredient ON trip_recipe.recipe_id = recipe_ingredient.recipe_id INNER JOIN ingredient ON recipe_ingredient.ingredient_id = ingredient.id WHERE trip_recipe.trip_id=:id"
         ingredients = db.session.execute(ingredients_sql, {"id":r[0]}).fetchall()
@@ -158,10 +177,7 @@ def generate_shopping_list(ingredients, factor_sum):
         name = i[0].capitalize()
         amount = i[1]
         measure = i[2].lower()
-        factor = 1
-        if convert_to_ml_or_g(measure):
-            factor, measure = convert_to_ml_or_g(measure)
-        amount = factor*factor_sum*amount
+        amount = factor_sum*amount
         amount_list = shopping_dict.get(name)
         if amount_list == None:
             shopping_dict[name] = [(amount, measure)]
@@ -186,8 +202,9 @@ def generate_shopping_list(ingredients, factor_sum):
     return shopping_list
 
 
-
 def convert_to_ml_or_g(measure):
+    # Attempts to convert measures to g or ml 
+
     measure = measure.lower()
     factor = 0
     new_measure = ''
@@ -206,17 +223,23 @@ def convert_to_ml_or_g(measure):
     elif measure in ['tsp', 'ts', 'tl']:
         factor =5
         new_measure = 'ml'
-    elif measure == 'cup':
-        factor =240
+    elif measure in ['cup', 'cups']:
+        factor =236.6
+        new_measure = 'ml'
+    elif measure in ['fl oz', 'fl. oz.',  'oz. fl.', 'fluid ounce', 'fluid ounces']:
+        factor =28.4
         new_measure = 'ml'
     elif measure == 'ml':
         factor =1
         new_measure = 'ml'
-    elif measure in ['kg', 'kilo']:
+    elif measure in ['kg', 'kilo', 'kilos']:
         factor =1000
         new_measure = 'g'
     elif measure in ['g', 'gram']:
         factor =1
+        new_measure = 'g'
+    elif measure in ['ounce', 'ounces', 'oz', 'oz.']:
+        factor =28.3
         new_measure = 'g'
     if factor == 0:
         return False

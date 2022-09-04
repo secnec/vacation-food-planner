@@ -13,21 +13,28 @@ Add new recipe
 
 <form method="POST" action="/new_recipe">
     <label for="name">Recipe name:</label><br>
-    <input type="text" id="name" name="name"><br><br>
+    <input type="text" id="name" name="name" value="{{ request.form['name'] }}"><br><br>
     <label for="instructions">Preparation instructions:</label><br>
-    <textarea rows="10" cols="50" id="instructions" name="instructions"></textarea><br><br>
+    <textarea rows="10" cols="50" id="instructions" name="instructions">{{ request.form['instructions'] }}</textarea><br><br>
+    <label for="portions">Number of portions:</label><br>
+    <input type="number" id="portions" name="portions" value="{{ request.form['portions'] }}"><br><br>
     <label for="ingredients">Ingredients:</label><br>
     <table id="ingredient_table">
         <tr>
             <th>Name</th>
             <th>Amount</th>
-            <th>measure</th>
-          </tr>
-          <tr>
-            <td><input type="text" id="ing_name" name="ingredientnames-0"></td>
-            <td><input type="text" id="amount" name="ingredientamounts-0"></td>
-            <td><input type="text" id="measure" name="ingredientmeasures-0"></td>
-          </tr>
+            <th>Unit of measure (e.g. g or ml)</th>
+        </tr>
+        {% for i in range(0, ing_number) %}
+            {% set f_names = 'ingredientnames-'+i|string %}
+            {% set f_amounts = 'ingredientamounts-'+i|string %}
+            {% set f_measures = 'ingredientmeasures-'+i|string %}
+            <tr>
+                <td><input type="text" id="ing_name" name="ingredientnames-{{i}}" value="{{ request.form[f_names] }}"></td>
+                <td><input type="text" id="amount" name="ingredientamounts-{{i}}" value="{{ request.form[f_amounts] }}"></td>
+                <td><input type="text" id="measure" name="ingredientmeasures-{{i}}" value="{{ request.form[f_measures] }}"></td>
+            </tr>
+        {% endfor %}
     </table>
     <button id="add-ingredient-field" type="button">Add new ingredient</button><br><br>
     <input type="checkbox" id="is_secret" name="is_secret" value="True">
@@ -54,9 +61,9 @@ Add new recipe
             let newMeasureFieldName = `ingredientmeasures-${Math.max(...ingredientInputIds) + 1}`;
             allIngredientsFieldWrapper.insertAdjacentHTML('beforeend',`
             <tr>
-                <td><input type="text" id=${newNameFieldName} name=${newNameFieldName}></td>
-                <td><input type="text" id=${newAmountFieldName} name=${newAmountFieldName}></td>
-                <td><input type="text" id=${newMeasureFieldName} name=${newMeasureFieldName}></td>
+                <td><input type="text" id=${newNameFieldName} name=${newNameFieldName} value="{{ request.form['${newNameFieldName}'] }}"></td>
+                <td><input type="text" id=${newAmountFieldName} name=${newAmountFieldName} value="{{ request.form['${newAmountFieldName}'] }}"></td>
+                <td><input type="text" id=${newMeasureFieldName} name=${newMeasureFieldName} value="{{ request.form['${newMeasureFieldName}'] }}"></td>
             </tr>
             `);
         });
