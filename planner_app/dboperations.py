@@ -79,20 +79,35 @@ def portion_amount(amount, portions, measure):
     return amount, measure
 
 
-def get_recipes():
-    recipes_sql = "SELECT id, name, instructions, portions, is_secret, owner_id FROM recipe"
+
+def get_recipe_names_ids():
+    recipes_sql = "SELECT id, name, is_secret, owner_id FROM recipe"
     recipes = db.session.execute(recipes_sql).fetchall()
     results = []
     for r in recipes:
-        if r[4] == True and r[5] != current_user.id:
+        if r[2] == True and r[3] != current_user.id:
             continue
-        sql = "SELECT ingredient.name, ingredient.measure, (recipe_ingredient.amount * :portions) FROM recipe_ingredient INNER JOIN ingredient ON recipe_ingredient.ingredient_id=ingredient.id WHERE recipe_ingredient.recipe_id=:id"
-        ingredients = db.session.execute(sql, {"id":r[0], "portions":r[3]}).fetchall()
         results.append({
             'id': r[0],
             'name': r[1],
-            'portions': r[3],
-            'instructions': r[2],
+        })
+    return results
+
+
+def get_recipes():
+    recipes_sql = "SELECT id, name, is_secret, owner_id, instructions, portions FROM recipe"
+    recipes = db.session.execute(recipes_sql).fetchall()
+    results = []
+    for r in recipes:
+        if r[2] == True and r[3] != current_user.id:
+            continue
+        sql = "SELECT ingredient.name, ingredient.measure, (recipe_ingredient.amount * :portions) FROM recipe_ingredient INNER JOIN ingredient ON recipe_ingredient.ingredient_id=ingredient.id WHERE recipe_ingredient.recipe_id=:id"
+        ingredients = db.session.execute(sql, {"id":r[0], "portions":r[5]}).fetchall()
+        results.append({
+            'id': r[0],
+            'name': r[1],
+            'portions': r[5],
+            'instructions': r[4],
             'ingredients': ingredients
         })
     return results
