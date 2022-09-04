@@ -1,6 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<link rel="stylesheet" href="main.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -11,23 +13,37 @@
 </head>
 
 <body>
-    <div class="content">
-    <h1> Vacation food planner </h1>
-
-    <p>[  
-        {% if current_user.is_anonymous %}
-        <a href="/register">Register</a> | 
-        <a href="/login">Log in</a>
-        {% endif %}
-        {% if current_user.is_authenticated %}
-        <a href="/trips">Trips</a> |
-        <a href="/new_trip">New trip</a> |
-        <a href="/recipes">Recipes</a> |
-        <a href="/new_recipe">New recipe</a> |
-        <a href="/logout">Log out</a>
-        {% endif %} ]</p>
-
-
+    <div class="container">
+    <nav class="navbar navbar-expand-sm navbar-light">
+        <h2 class="navbar-brand">Vacation food planner</h2>
+        <ul class="navbar-nav">
+            {% if current_user.is_anonymous %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/register">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Log in</a>
+                </li>
+            {% endif %}
+            {% if current_user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="/trips">Trips</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/new_trip">New trip</a>
+            </li>                
+            <li class="nav-item">
+                <a class="nav-link" href="/recipes">Recipes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/new_recipe">New recipe</a>
+            </li>                
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Log out</a>
+            </li>
+            {% endif %}</p>
+        </ul>
+      </nav>
         
 {% block content %}{% endblock %}
     </div>

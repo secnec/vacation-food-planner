@@ -12,33 +12,44 @@ Add new recipe
 {% endif %}
 
 <form method="POST" action="/new_recipe">
-    <label for="name">Recipe name:</label><br>
-    <input type="text" id="name" name="name" value="{{ request.form['name'] }}"><br><br>
-    <label for="instructions">Preparation instructions:</label><br>
-    <textarea rows="10" cols="50" id="instructions" name="instructions">{{ request.form['instructions'] }}</textarea><br><br>
-    <label for="portions">Number of portions:</label><br>
-    <input type="number" id="portions" name="portions" value="{{ request.form['portions'] }}"><br><br>
-    <label for="ingredients">Ingredients:</label><br>
-    <table id="ingredient_table">
-        <tr>
-            <th>Name</th>
-            <th>Amount</th>
-            <th>Unit of measure (e.g. g or ml)</th>
-        </tr>
-        {% for i in range(0, ing_number) %}
-            {% set f_names = 'ingredientnames-'+i|string %}
-            {% set f_amounts = 'ingredientamounts-'+i|string %}
-            {% set f_measures = 'ingredientmeasures-'+i|string %}
+    <div class="form-group col-6">
+        <label for="name">Recipe name:</label><br>
+        <input type="text" id="name" name="name" value="{{ request.form['name'] }}"><br><br>
+    </div>
+    <div class="form-group col-6">
+        <label for="instructions">Preparation instructions:</label><br>
+        <textarea rows="10" cols="50" id="instructions" name="instructions">{{ request.form['instructions'] }}</textarea><br><br>        
+    </div>
+    <div class="form-group col-6">
+        <label for="portions">Number of portions:</label><br>
+        <input type="number" id="portions" name="portions" value="{{ request.form['portions'] }}"><br><br>       
+    </div>
+    <div class="form-group col-6">
+        <label for="ingredients">Ingredients:</label>
+        <table id="ingredient_table">
             <tr>
-                <td><input type="text" id="ing_name" name="ingredientnames-{{i}}" value="{{ request.form[f_names] }}"></td>
-                <td><input type="text" id="amount" name="ingredientamounts-{{i}}" value="{{ request.form[f_amounts] }}"></td>
-                <td><input type="text" id="measure" name="ingredientmeasures-{{i}}" value="{{ request.form[f_measures] }}"></td>
+                <th>Name</th>
+                <th>Amount</th>
+                <th>Unit of measure (e.g. g or ml)</th>
             </tr>
-        {% endfor %}
-    </table>
-    <button id="add-ingredient-field" type="button">Add new ingredient</button><br><br>
-    <input type="checkbox" id="is_secret" name="is_secret" value="True">
-    <label for="is_secret">Make recipe secret</label><br><br>
+            {% for i in range(0, ing_number) %}
+                {% set f_names = 'ingredientnames-'+i|string %}
+                {% set f_amounts = 'ingredientamounts-'+i|string %}
+                {% set f_measures = 'ingredientmeasures-'+i|string %}
+                <tr>
+                    <td><input type="text" id="ing_name" name="ingredientnames-{{i}}" value="{{ request.form[f_names] }}"></td>
+                    <td><input type="text" id="amount" name="ingredientamounts-{{i}}" value="{{ request.form[f_amounts] }}"></td>
+                    <td><input type="text" id="measure" name="ingredientmeasures-{{i}}" value="{{ request.form[f_measures] }}"></td>
+                </tr>
+            {% endfor %}
+        </table>
+        <button id="add-ingredient-field" type="button">Add new ingredient</button><br><br>
+    </div>
+    <div class="form-group col-6">
+        <input type="checkbox" id="is_secret" name="is_secret" value="True">
+        <label for="is_secret">Make recipe secret</label><br>
+    </div>
+    
     <button type="submit">Save</button>
     
 </form>

@@ -1,0 +1,19 @@
+body {
+    margin: auto;
+    max-width: 45em;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    background: Azure;
+}
+
+nav li {
+    display: inline-block;
+    padding: 0 .5em;
+    background: LightCoral;
+    padding: 1em 1em;
+    font-family: 'Monospace', 'Monaco', sans-serif;
+}
+
+form {
+    display: block;
+    float: left;
+}

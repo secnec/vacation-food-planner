@@ -12,38 +12,47 @@ Add new trip
 {% endif %}
 
 <form method="POST" action="/new_trip">
-    <label for="name">Trip name:</label><br>
-    <input type="text" id="name" name="name" value="{{ request.form['name'] }}">><br><br>
-    <label for="participants">Participants:</label><br>
-    <table id="participant_table">
-        <tr>
-            <th>Name</th>
-            <th>factor</th>
-        </tr>
-        {% for i in range(0, part_number) %}
-            {% set f_names = 'participantnames-'+i|string %}
-            {% set f_factors = 'participantfactors-'+i|string %}
+    <div class="form-group col-6">
+        <label for="name">Trip name:</label><br>
+        <input type="text" id="name" name="name" value="{{ request.form['name'] }}"><br><br>
+    </div>
+    <div class="form-group col-6">
+        <label for="participants">Participants:</label><br>
+        <table id="participant_table">
             <tr>
-                <td><input type="text" name="participantnames-{{i}}" value="{{ request.form[f_names] }}"></td>
-                <td><input type="text" name="participantfactors-{{i}}" value="{{ request.form[f_factors] }}"></td>
+                <th>Name</th>
+                <th>factor</th>
             </tr>
-        {% endfor %}
-    </table>
-    <button id="add-participant-field" type="button">Add new participant</button><br><br>
-    <label for="recipes">Recipes:</label><br>
-    <table id="recipe_table">
-        <tr>
-            <th>Recipe id</th>
-        {% for i in range(0, rec_number) %}
-            {% set f_ids = 'recipeids-'+i|string %}
+            {% for i in range(0, part_number) %}
+                {% set f_names = 'participantnames-'+i|string %}
+                {% set f_factors = 'participantfactors-'+i|string %}
+                <tr>
+                    <td><input type="text" name="participantnames-{{i}}" value="{{ request.form[f_names] }}"></td>
+                    <td><input type="text" name="participantfactors-{{i}}" value="{{ request.form[f_factors] }}"></td>
+                </tr>
+            {% endfor %}
+        </table>
+        <button id="add-participant-field" type="button">Add new participant</button><br><br>    
+    </div>
+    <div class="form-group col-6">
+        <label for="recipes">Recipes:</label><br>
+        <table id="recipe_table">
             <tr>
-                <td><input type="text" name="recipeids-{{i}}" value="{{ request.form[f_ids] }}"></td>
-            </tr>
-        {% endfor %}
-    </table>
-    <button id="add-recipe-field" type="button">Add new recipe</button><br><br>
-    <input type="checkbox" id="is_secret" name="is_secret" value="True">
-    <label for="is_secret">Make trip secret</label><br><br>
+                <th>Recipe id</th>
+            {% for i in range(0, rec_number) %}
+                {% set f_ids = 'recipeids-'+i|string %}
+                <tr>
+                    <td><input type="text" name="recipeids-{{i}}" value="{{ request.form[f_ids] }}"></td>
+                </tr>
+            {% endfor %}
+        </table>
+        <button id="add-recipe-field" type="button">Add new recipe</button><br><br>    
+    </div>
+    <div class="form-group col-6">
+        <input type="checkbox" id="is_secret" name="is_secret" value="True">
+        <label for="is_secret">Make trip secret</label><br><br>
+    </div>    
+
     <button type="submit">Save</button>
 </form>
 
