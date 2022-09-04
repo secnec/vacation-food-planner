@@ -37,7 +37,6 @@ def recipes():
 @site.route("/new_trip",  methods=["GET", "POST"])
 @login_required
 def new_trip():
-    recipes = dbo.get_recipe_names_ids()
     if request.method == "POST":
         check_csrf()
         result = validate_trip(request)
@@ -52,11 +51,11 @@ def new_trip():
                 if f"recipeids-{r}" not in request.values.keys():
                     break
                 r += 1
-            return render_template("new_trip.html", alert=result, recipes = recipes, part_number = p, rec_number = r)  
+            return render_template("new_trip.html", alert=result, part_number = p, rec_number = r)  
         else:
             dbo.insert_trip(request)
             return redirect("/trips")
-    return render_template("new_trip.html", recipes = recipes, part_number = 1, rec_number = 1)
+    return render_template("new_trip.html", part_number = 1, rec_number = 1)
 
 @site.route("/new_recipe", methods=["GET", "POST"])
 @login_required
