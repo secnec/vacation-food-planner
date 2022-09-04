@@ -42,3 +42,4 @@ def check_number_validity(number):
         return False
     else:
         return True
+

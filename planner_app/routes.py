@@ -1,10 +1,11 @@
 from planner_app.loginmanager import login_manager
 from planner_app.forms import RegistrationForm
-from flask import Blueprint, redirect, render_template, request
+from flask import Blueprint, redirect, render_template, request, session, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 import planner_app.dboperations as dbo
 from planner_app.validators import validate_recipe, validate_trip
+import secrets
 
 site = Blueprint("site", __name__, template_folder="templates")
 
@@ -37,6 +38,7 @@ def recipes():
 @login_required
 def new_trip():
     if request.method == "POST":
+        check_csrf()
         result = validate_trip(request)
         if result != True:
             p=1
@@ -59,6 +61,7 @@ def new_trip():
 @login_required
 def new_recipe():
     if request.method == "POST":
+        check_csrf()
         result = validate_recipe(request)
         if result != True:
             i=1
@@ -101,6 +104,7 @@ def login():
             alert = "Invalid username or password"
         elif check_password_hash(user.password, password):
             login_user(user)
+            session["csrf_token"] = secrets.token_hex(16)
             return redirect("/trips")
         else:
             alert = "Invalid username or password"
@@ -111,3 +115,7 @@ def login():
 def logout():
     logout_user()
     return redirect("/login")
+
+def check_csrf():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        return abort(403)

@@ -12,6 +12,7 @@ Add new trip
 {% endif %}
 
 <form method="POST" action="/new_trip">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
     <div class="form-group col-6">
         <label for="name">Trip name:</label><br>
         <input type="text" id="name" name="name" value="{{ request.form['name'] }}"><br><br>
